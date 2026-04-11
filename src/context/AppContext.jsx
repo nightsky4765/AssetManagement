@@ -43,7 +43,8 @@ export function AppProvider({ children }) {
   // Asset Allocation Targets
   const [allocationTargets, setAllocationTargets] = useLocalStorage('app-allocation-targets', {
     emergency: { type: 'fixed', value: 100000 },
-    living: { type: 'percent', value: 10 },
+    living: { type: 'percent', value: 50 },
+    entertainment: { type: 'percent', value: 10 },
     stocksPercent: 70, // 70% of the REST
     bondsPercent: 30,  // 30% of the REST
   });
