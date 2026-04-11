@@ -12,6 +12,7 @@ export default function Analytics() {
 
   const [activeTab, setActiveTab] = useState('overview'); 
   const [chartType, setChartType] = useState('pie'); 
+  const [showPercent, setShowPercent] = useState(false);
   
   const currentYearStr = new Date().getFullYear().toString();
   const currentMonthStr = (new Date().getMonth() + 1).toString().padStart(2, '0');
@@ -89,7 +90,19 @@ export default function Analytics() {
       legend: { 
         position: 'bottom',
         labels: { color: '#FFFFFF' } 
-      } 
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const value = context.raw;
+            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+            const percentage = ((value / total) * 100).toFixed(1);
+            return showPercent && total > 0
+              ? `${context.label}: ${percentage}%`
+              : `${context.label}: $${value.toLocaleString()}`;
+          }
+        }
+      }
     },
     maintainAspectRatio: false
   };
@@ -204,6 +217,16 @@ export default function Analytics() {
                 {isZHTW ? '長條圖' : 'Bar'}
               </button>
             </div>
+
+            {chartType === 'pie' && (
+              <button 
+                className="btn-secondary" 
+                style={{ fontSize: '0.75rem', padding: '4px 10px', marginLeft: '8px', border: showPercent ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)', color: showPercent ? 'var(--accent-primary)' : 'var(--text-secondary)' }}
+                onClick={() => setShowPercent(!showPercent)}
+              >
+                {showPercent ? (isZHTW ? '顯示金額' : 'Show $') : (isZHTW ? '顯示比例' : 'Show %')}
+              </button>
+            )}
           </div>
 
           {Object.keys(activeTab === 'expense' ? expenseData : incomeData).length === 0 ? (
