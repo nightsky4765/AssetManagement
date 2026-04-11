@@ -14,8 +14,9 @@ export default function Analytics() {
   const [chartType, setChartType] = useState('pie'); 
   
   const currentYearStr = new Date().getFullYear().toString();
+  const currentMonthStr = (new Date().getMonth() + 1).toString().padStart(2, '0');
   const [searchYear, setSearchYear] = useState(currentYearStr);
-  const [searchMonth, setSearchMonth] = useState(''); // '' means all months
+  const [searchMonth, setSearchMonth] = useState(currentMonthStr);
 
   // Identify distinct years from data
   const distinctYears = [...new Set(transactions.map(t => new Date(t.date).getFullYear().toString()))].sort((a,b)=>b.localeCompare(a));

@@ -30,8 +30,14 @@ export function AppProvider({ children }) {
   
   // Update categories when language changes if they match defaults
   useEffect(() => {
-    const isZHTW = language === 'zh-TW';
-    setCategories(isZHTW ? defaultCategoriesZH : defaultCategoriesEN);
+    // Only update if current categories strictly match ANY of the defaults (meaning user hasn't customized)
+    const isDefaultZH = JSON.stringify(categories.expense) === JSON.stringify(defaultCategoriesZH.expense);
+    const isDefaultEN = JSON.stringify(categories.expense) === JSON.stringify(defaultCategoriesEN.expense);
+    
+    if (isDefaultZH || isDefaultEN) {
+      const isZHTW = language === 'zh-TW';
+      setCategories(isZHTW ? defaultCategoriesZH : defaultCategoriesEN);
+    }
   }, [language]);
 
   // Asset Allocation Targets

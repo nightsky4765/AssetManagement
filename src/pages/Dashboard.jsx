@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { PlusCircle, ArrowUpCircle, ArrowDownCircle } from 'lucide-react';
+import CategoryPicker from '../components/CategoryPicker';
 
 export default function Dashboard() {
-  const { language, assets, setAssets, transactions, setTransactions, categories, setCategories } = useAppContext();
+  const { language, assets, setAssets, transactions, setTransactions, categories } = useAppContext();
   const isZHTW = language === 'zh-TW';
 
   const [type, setType] = useState('expense');
@@ -24,25 +25,6 @@ export default function Dashboard() {
       setCategory(targetCats[0]);
     }
   }, [categories, type]);
-
-  const handleAddNewCategory = () => {
-    const currentList = categories[type];
-    if (currentList.length >= 50) {
-      alert(isZHTW ? '您已達到 50 個類別的上限囉！' : 'Category limit of 50 reached!');
-      return;
-    }
-    const newCat = window.prompt(isZHTW ? `請輸入新的${type === 'expense' ? '支出' : '收入'}類別名稱：` : 'Enter new category name:');
-    if (newCat && newCat.trim() !== '') {
-      const formattedCat = newCat.trim();
-      if (!currentList.includes(formattedCat)) {
-        setCategories(prev => ({
-          ...prev,
-          [type]: [...prev[type], formattedCat]
-        }));
-      }
-      setCategory(formattedCat);
-    }
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -112,22 +94,7 @@ export default function Dashboard() {
             </div>
             <div style={{ flex: 1 }}>
               <label className="input-label">{isZHTW ? '類別' : 'Category'}</label>
-              <select 
-                className="input-field" 
-                value={category} 
-                onChange={e => {
-                  if (e.target.value === 'ADD_NEW') {
-                    handleAddNewCategory();
-                  } else {
-                    setCategory(e.target.value);
-                  }
-                }}
-              >
-                {(type === 'expense' ? categories.expense : categories.income).map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-                <option value="ADD_NEW" style={{ color: 'var(--accent-secondary)' }}>{isZHTW ? '+ 新增類別...' : '+ Add Category'}</option>
-              </select>
+              <CategoryPicker type={type} value={category} onChange={setCategory} />
             </div>
           </div>
           

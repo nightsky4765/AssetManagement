@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { ArrowUpCircle, ArrowDownCircle, Trash2, Edit2, XCircle, Save, Search, Calendar } from 'lucide-react';
+import CategoryPicker from '../components/CategoryPicker';
 
 export default function Records() {
   const { language, assets, setAssets, transactions, setTransactions, categories, setCategories } = useAppContext();
@@ -24,27 +25,6 @@ export default function Records() {
   const distinctYears = [...new Set(transactions.map(t => new Date(t.date).getFullYear().toString()))].sort((a,b)=>b.localeCompare(a));
   const currentYearStr = new Date().getFullYear().toString();
   if (!distinctYears.includes(currentYearStr)) distinctYears.unshift(currentYearStr);
-
-  const handleAddNewCategory = (typeKey, isEditMode = false) => {
-    const currentList = categories[typeKey];
-    if (currentList.length >= 50) {
-      alert(isZHTW ? '您已達到 50 個類別的上限囉！' : 'Category limit of 50 reached!');
-      return;
-    }
-    const newCat = window.prompt(isZHTW ? `請輸入新的${typeKey === 'expense' ? '支出' : '收入'}類別名稱：` : 'Enter new category name:');
-    if (newCat && newCat.trim() !== '') {
-      const formattedCat = newCat.trim();
-      if (!currentList.includes(formattedCat)) {
-        setCategories(prev => ({
-          ...prev,
-          [typeKey]: [...prev[typeKey], formattedCat]
-        }));
-      }
-      if (isEditMode) {
-        setEditCategory(formattedCat);
-      }
-    }
-  };
 
   const handleEditClick = (tx) => {
     setEditingId(tx.id);
@@ -219,22 +199,9 @@ export default function Records() {
                             </div>
                             <input type="datetime-local" className="input-field" style={{ padding: '8px', marginBottom: '8px' }} value={editDatetime} onChange={e => setEditDatetime(e.target.value)} required />
                             <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-                              <select 
-                                className="input-field" style={{ flex: 1, padding: '8px', marginBottom: 0 }} 
-                                value={editCategory} 
-                                onChange={e => {
-                                  if (e.target.value === 'ADD_NEW') {
-                                    handleAddNewCategory(editType, true);
-                                  } else {
-                                    setEditCategory(e.target.value);
-                                  }
-                                }}
-                              >
-                                {(editType === 'expense' ? categories.expense : categories.income).map(cat => (
-                                  <option key={cat} value={cat}>{cat}</option>
-                                ))}
-                                <option value="ADD_NEW" style={{ color: 'var(--accent-secondary)' }}>{isZHTW ? '+ 新增類別...' : '+ Add Category'}</option>
-                              </select>
+                              <div style={{ flex: 1 }}>
+                                <CategoryPicker type={editType} value={editCategory} onChange={setEditCategory} />
+                              </div>
                               <input type="number" className="input-field" style={{ flex: 1, padding: '8px', marginBottom: 0 }} value={editAmount} onChange={e => setEditAmount(e.target.value)} placeholder="Amount" required />
                             </div>
                             <input type="text" className="input-field" style={{ padding: '8px', marginBottom: '8px' }} value={editNote} onChange={e => setEditNote(e.target.value)} placeholder="Note" />
