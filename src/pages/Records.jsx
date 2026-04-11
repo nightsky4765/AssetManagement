@@ -35,6 +35,10 @@ export default function Records() {
     setEditDatetime(tx.date);
   };
 
+  const handleCancelEdit = () => {
+    setEditingId(null);
+  };
+
   const handleSaveEdit = (e) => {
     e.preventDefault();
     if (!editAmount || Number(editAmount) <= 0) return;
