@@ -78,6 +78,9 @@ export default function Analytics() {
       label: labelStr,
       data: Object.values(dataMap),
       backgroundColor: colorCode,
+      barThickness: 28,
+      maxBarThickness: 32,
+      borderRadius: 6,
     }]
   });
 
@@ -96,7 +99,9 @@ export default function Analytics() {
     scales: {
       y: { ticks: { color: '#9BA1A6' }, grid: { color: 'rgba(255,255,255,0.1)' } },
       x: { ticks: { color: '#9BA1A6' }, grid: { display: false } }
-    }
+    },
+    categoryPercentage: 0.6,
+    barPercentage: 0.9
   };
 
   return (
