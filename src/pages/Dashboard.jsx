@@ -102,7 +102,7 @@ export default function Dashboard() {
           <input type="number" className="input-field" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0" required />
           
           <label className="input-label">{isZHTW ? '備註' : 'Note'}</label>
-          <input type="text" className="input-field" value={note} onChange={e => setNote(e.target.value)} placeholder={isZHTW ? '輸入備註...' : 'Write a note...'} />
+          <textarea className="input-field" value={note} onChange={e => setNote(e.target.value)} placeholder={isZHTW ? '輸入備註...' : 'Write a note...'} />
           
           <button type="submit" className="btn-primary" style={{ marginTop: 'var(--spacing-sm)' }}>
             <PlusCircle size={20} />
@@ -127,8 +127,13 @@ export default function Dashboard() {
                   <div>
                     <div style={{ fontWeight: 600 }}>{tx.category}</div>
                     <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                      {renderTxTime(tx.date)} {tx.note && `• ${tx.note}`}
+                      {renderTxTime(tx.date)}
                     </div>
+                    {tx.note && (
+                      <div className="text-pre" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '2px', opacity: 0.8 }}>
+                        {tx.note}
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div style={{ fontWeight: 700, color: tx.type === 'income' ? 'var(--success)' : 'white' }}>

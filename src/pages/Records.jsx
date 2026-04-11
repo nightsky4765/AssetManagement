@@ -208,7 +208,7 @@ export default function Records() {
                               </div>
                               <input type="number" className="input-field" style={{ flex: 1, padding: '8px', marginBottom: 0 }} value={editAmount} onChange={e => setEditAmount(e.target.value)} placeholder="Amount" required />
                             </div>
-                            <input type="text" className="input-field" style={{ padding: '8px', marginBottom: '8px' }} value={editNote} onChange={e => setEditNote(e.target.value)} placeholder="Note" />
+                            <textarea className="input-field" style={{ padding: '8px', marginBottom: '8px' }} value={editNote} onChange={e => setEditNote(e.target.value)} placeholder="Note" />
                             
                             <div style={{ display: 'flex', gap: '8px' }}>
                               <button type="button" className="btn-secondary" style={{ flex: 1, padding: '8px' }} onClick={handleCancelEdit}><XCircle size={16} /> {isZHTW ? '取消' : 'Cancel'}</button>
@@ -222,8 +222,13 @@ export default function Records() {
                               <div>
                                 <div style={{ fontWeight: 600 }}>{tx.category}</div>
                                 <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                                  {renderTxTime(tx.date)} {tx.note && `• ${tx.note}`}
+                                  {renderTxTime(tx.date)}
                                 </div>
+                                {tx.note && (
+                                  <div className="text-pre" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '2px', opacity: 0.8 }}>
+                                    {tx.note}
+                                  </div>
+                                )}
                               </div>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)' }}>

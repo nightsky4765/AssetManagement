@@ -157,7 +157,7 @@ input, select, textarea {
   background: var(--border-color);
 }
 
-.input-field {
+.input-field, textarea.input-field {
   width: 100%;
   background: var(--bg-element);
   border: 1px solid var(--border-color);
@@ -167,11 +167,22 @@ input, select, textarea {
   font-size: 1rem;
   margin-bottom: var(--spacing-md);
   transition: border-color 0.2s;
+  font-family: inherit;
+}
+
+textarea.input-field {
+  min-height: 80px;
+  resize: vertical;
 }
 
 .input-field:focus {
   outline: none;
   border-color: var(--accent-primary);
+}
+
+.text-pre {
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .input-label {
