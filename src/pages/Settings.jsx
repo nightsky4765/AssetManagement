@@ -3,7 +3,7 @@ import { useAppContext } from '../context/AppContext';
 import { Settings as SettingsIcon, AlertTriangle, Edit2, Trash2, PlusCircle, X } from 'lucide-react';
 
 export default function Settings() {
-  const { language, setLanguage, setHasCompletedSetup, setAssets, setTransactions, categories, setCategories, transactions } = useAppContext();
+  const { language, setLanguage, setHasCompletedSetup, setAssets, setTransactions, categories, setCategories, transactions, iconSet, setIconSet, customIcons, setCustomIcons } = useAppContext();
   const isZHTW = language === 'zh-TW';
 
   const [catTab, setCatTab] = useState('expense'); // expense, income
@@ -82,6 +82,16 @@ export default function Settings() {
     }
   };
 
+  const handleImageUpload = (e, type) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setCustomIcons(prev => ({ ...prev, [type]: reader.result }));
+    };
+    reader.readAsDataURL(file);
+  };
+
   return (
     <div className="page-container" style={{ paddingBottom: '90px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)', marginBottom: 'var(--spacing-md)' }}>
@@ -144,6 +154,43 @@ export default function Settings() {
           <PlusCircle size={18} />
           {isZHTW ? '新增類別' : 'Add Category'}
         </button>
+      </div>
+
+      <div className="card">
+        <h3 style={{ marginBottom: 'var(--spacing-md)' }}>{isZHTW ? '圖示風格' : 'Icon Style'}</h3>
+        
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--spacing-sm)' }}>
+          <span style={{ fontWeight: 600 }}>{isZHTW ? '選擇風格' : 'Select Theme'}</span>
+          <select 
+            className="input-field" 
+            style={{ width: 'auto', marginBottom: 0, padding: '8px 16px' }}
+            value={iconSet}
+            onChange={(e) => setIconSet(e.target.value)}
+          >
+            <option value="lucide">{isZHTW ? '預設 (箭頭)' : 'Default'}</option>
+            <option value="anime">{isZHTW ? '可愛動漫人物' : 'Cute Anime'}</option>
+            <option value="money">{isZHTW ? '金錢 (🤑/💸)' : 'Money (🤑/💸)'}</option>
+            <option value="animal">{isZHTW ? '寵物 (🐶/🐱)' : 'Pets (🐶/🐱)'}</option>
+            <option value="pixel">{isZHTW ? '復古像素 (💎/👾)' : 'Pixel (💎/👾)'}</option>
+            <option value="nature">{isZHTW ? '大自然 (🌻/🍂)' : 'Nature (🌻/🍂)'}</option>
+            <option value="custom">{isZHTW ? '自定義上傳' : 'Custom Upload'}</option>
+          </select>
+        </div>
+
+        {iconSet === 'custom' && (
+          <div style={{ display: 'flex', gap: '16px', marginTop: '16px', background: 'var(--bg-element)', padding: '16px', borderRadius: 'var(--radius-sm)' }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <label className="input-label" style={{ alignSelf: 'flex-start' }}>{isZHTW ? '收入圖示' : 'Income'}</label>
+              <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'income')} style={{ fontSize: '0.8rem', width: '100%' }} />
+              {customIcons.income && <img src={customIcons.income} alt="income" style={{ width: 48, height: 48, marginTop: 8, borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--success)' }} />}
+            </div>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <label className="input-label" style={{ alignSelf: 'flex-start' }}>{isZHTW ? '支出圖示' : 'Expense'}</label>
+              <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'expense')} style={{ fontSize: '0.8rem', width: '100%' }} />
+              {customIcons.expense && <img src={customIcons.expense} alt="expense" style={{ width: 48, height: 48, marginTop: 8, borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--danger)' }} />}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="card" style={{ border: '1px solid var(--danger)' }}>

@@ -28,6 +28,11 @@ export function AppProvider({ children }) {
   
   const [categories, setCategories] = useLocalStorage('app-categories', defaultCategoriesZH);
   
+  // Icon Settings
+  const [iconSet, setIconSet] = useLocalStorage('app-icon-set', 'lucide');
+  const [customIcons, setCustomIcons] = useLocalStorage('app-custom-icons', { income: '', expense: '' });
+  
+  
   // Update categories when language changes if they match defaults
   useEffect(() => {
     // Only update if current categories strictly match ANY of the defaults (meaning user hasn't customized)
@@ -55,7 +60,9 @@ export function AppProvider({ children }) {
     assets, setAssets,
     transactions, setTransactions,
     categories, setCategories,
-    allocationTargets, setAllocationTargets
+    allocationTargets, setAllocationTargets,
+    iconSet, setIconSet,
+    customIcons, setCustomIcons
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
-import { ArrowUpCircle, ArrowDownCircle, Trash2, Edit2, XCircle, Save, Search, Calendar } from 'lucide-react';
+import { Trash2, Edit2, XCircle, Save, Search, Calendar } from 'lucide-react';
 import CategoryPicker from '../components/CategoryPicker';
+import TransactionIcon from '../components/TransactionIcon';
 
 export default function Records() {
   const { language, assets, setAssets, transactions, setTransactions, categories, setCategories } = useAppContext();
@@ -222,7 +223,7 @@ export default function Records() {
                         ) : (
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
-                              {tx.type === 'income' ? <ArrowUpCircle color="var(--success)" /> : <ArrowDownCircle color="var(--danger)" />}
+                              <TransactionIcon type={tx.type} />
                               <div>
                                 <div style={{ fontWeight: 600 }}>{tx.category}</div>
                                 <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>

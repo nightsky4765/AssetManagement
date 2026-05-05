@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAppContext } from '../context/AppContext';
-import { PlusCircle, ArrowUpCircle, ArrowDownCircle } from 'lucide-react';
+import { PlusCircle } from 'lucide-react';
 import CategoryPicker from '../components/CategoryPicker';
+import TransactionIcon from '../components/TransactionIcon';
 
 export default function Dashboard() {
   const { language, assets, setAssets, transactions, setTransactions, categories } = useAppContext();
@@ -136,7 +137,7 @@ export default function Dashboard() {
             {transactions.slice(0, 3).map((tx) => (
               <div key={tx.id} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 0, padding: 'var(--spacing-md)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
-                  {tx.type === 'income' ? <ArrowUpCircle color="var(--success)" /> : <ArrowDownCircle color="var(--danger)" />}
+                  <TransactionIcon type={tx.type} />
                   <div>
                     <div style={{ fontWeight: 600 }}>{tx.category}</div>
                     <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
