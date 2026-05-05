@@ -185,14 +185,18 @@ export default function Records() {
                 {monthStr}
               </div>
               
-              {Object.keys(groupedTransactions[monthStr]).map(dayStr => (
+              {Object.keys(groupedTransactions[monthStr]).map(dayStr => {
+                const dayTxs = groupedTransactions[monthStr][dayStr];
+                const dayExpense = dayTxs.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+                return (
                 <div key={dayStr} style={{ marginBottom: 'var(--spacing-sm)' }}>
-                  <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px', paddingLeft: '4px' }}>
-                    {dayStr}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px', paddingLeft: '4px', paddingRight: '4px' }}>
+                    <span>{dayStr}</span>
+                    {dayExpense > 0 && <span style={{ color: 'var(--danger)', fontSize: '0.85rem', opacity: 0.9 }}>{isZHTW ? '總消費' : 'Total Exp'} ${dayExpense.toLocaleString()}</span>}
                   </div>
                   
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)' }}>
-                    {groupedTransactions[monthStr][dayStr].map((tx) => (
+                    {dayTxs.map((tx) => (
                       <div key={tx.id} className="card" style={{ marginBottom: 0, padding: 'var(--spacing-md)', borderColor: editingId === tx.id ? 'var(--accent-secondary)' : 'var(--border-color)' }}>
                         
                         {editingId === tx.id ? (
@@ -250,7 +254,8 @@ export default function Records() {
                     ))}
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           ))}
         </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { PlusCircle, ArrowUpCircle, ArrowDownCircle } from 'lucide-react';
 import CategoryPicker from '../components/CategoryPicker';
@@ -14,10 +14,20 @@ export default function Dashboard() {
   
   const getLocalDatetime = () => {
     const now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    return now.toISOString().slice(0, 16);
+    const pad = (n) => n.toString().padStart(2, '0');
+    return `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
   };
   const [datetime, setDatetime] = useState(getLocalDatetime());
+
+  const todayExpense = useMemo(() => {
+    const now = new Date();
+    return transactions
+      .filter(tx => {
+        const d = new Date(tx.date);
+        return tx.type === 'expense' && d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+      })
+      .reduce((a, b) => a + b.amount, 0);
+  }, [transactions]);
 
   useEffect(() => {
     const targetCats = type === 'expense' ? categories.expense : categories.income;
@@ -67,6 +77,9 @@ export default function Dashboard() {
         <div style={{ textAlign: 'right' }}>
           <span className="input-label" style={{ marginBottom: 0 }}>{isZHTW ? '目前現金餘額' : 'Cash Balance'}</span>
           <strong style={{ fontSize: '1.2rem', color: 'var(--accent-secondary)' }}>${assets.cash.toLocaleString()}</strong>
+          <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+            {isZHTW ? '今日消費' : 'Today\'s Exp'}: <span style={{ color: 'var(--danger)' }}>${todayExpense.toLocaleString()}</span>
+          </div>
         </div>
       </div>
 

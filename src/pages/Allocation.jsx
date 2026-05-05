@@ -12,15 +12,30 @@ export default function Allocation() {
 
   const currentTotal = assets.cash + assets.stocks + assets.bonds;
 
-  // ── 計算本月薪水 (本月收入合計) ──
   const monthlyIncome = useMemo(() => {
     const now = new Date();
-    return transactions
+    const currentMonthIncome = transactions
       .filter(tx => {
         const d = new Date(tx.date);
         return tx.type === 'income' && d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
       })
       .reduce((a, b) => a + b.amount, 0);
+      
+    if (currentMonthIncome > 0) return currentMonthIncome;
+    
+    // 如果當月沒收入，抓取最後一次有收入的那個月的總和作為基準
+    const lastIncomeTx = transactions.find(tx => tx.type === 'income');
+    if (!lastIncomeTx) return 30000; // 預設保底 30000
+
+    const lastIncomeDate = new Date(lastIncomeTx.date);
+    const lastMonthIncome = transactions
+      .filter(tx => {
+        const d = new Date(tx.date);
+        return tx.type === 'income' && d.getFullYear() === lastIncomeDate.getFullYear() && d.getMonth() === lastIncomeDate.getMonth();
+      })
+      .reduce((a, b) => a + b.amount, 0);
+
+    return lastMonthIncome > 0 ? lastMonthIncome : 30000;
   }, [transactions]);
 
   // ── 計算各項配置目標 ──
