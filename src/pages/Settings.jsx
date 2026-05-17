@@ -1,26 +1,18 @@
 import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
-import { Settings as SettingsIcon, AlertTriangle, Edit2, Trash2, PlusCircle, X } from 'lucide-react';
+import { Settings as SettingsIcon, AlertTriangle, Edit2, Trash2, PlusCircle, X, ChevronRight, ChevronLeft, TrendingDown, TrendingUp } from 'lucide-react';
 
 export default function Settings() {
   const { language, setLanguage, setHasCompletedSetup, setAssets, setTransactions, categories, setCategories, transactions, iconSet, setIconSet, customIcons, setCustomIcons } = useAppContext();
   const isZHTW = language === 'zh-TW';
 
   const [catTab, setCatTab] = useState('expense'); // expense, income
+  const [activeCategoryView, setActiveCategoryView] = useState(null); // null, 'expense', 'income'
 
   // Modal State for custom App-like editing
   const [modal, setModal] = useState({ isOpen: false, mode: 'add', oldName: '', newName: '' });
 
-  const handleReset = () => {
-    if (window.confirm(isZHTW ? '警告：此操作將刪除所有記帳紀錄與設定，且無法復原。確定要繼續嗎？' : 'WARNING: This will delete all your records and settings recursively. Are you sure?')) {
-      if (window.confirm(isZHTW ? '再次確認：確定要清空嗎？' : 'Final confirmation: Clear everything?')) {
-        setAssets({ cash: 0, stocks: 0, bonds: 0 });
-        setTransactions([]);
-        setHasCompletedSetup(false);
-        window.location.reload();
-      }
-    }
-  };
+
 
   const openAddModal = () => {
     if (categories[catTab].length >= 50) {
@@ -119,41 +111,75 @@ export default function Settings() {
       <div className="card">
         <h3 style={{ marginBottom: 'var(--spacing-md)' }}>{isZHTW ? '類別管理' : 'Category Management'}</h3>
         
-        <div style={{ display: 'flex', gap: '8px', marginBottom: 'var(--spacing-md)' }}>
-          <button 
-            style={{ flex: 1, padding: '8px', borderRadius: 'var(--radius-md)', background: catTab === 'expense' ? 'var(--danger)' : 'var(--bg-element)', color: 'white', fontWeight: 600 }}
-            onClick={() => setCatTab('expense')}
-          >
-            {isZHTW ? '支出' : 'Expense'}
-          </button>
-          <button 
-            style={{ flex: 1, padding: '8px', borderRadius: 'var(--radius-md)', background: catTab === 'income' ? 'var(--success)' : 'var(--bg-element)', color: 'white', fontWeight: 600 }}
-            onClick={() => setCatTab('income')}
-          >
-            {isZHTW ? '收入' : 'Income'}
-          </button>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '40vh', overflowY: 'auto', marginBottom: 'var(--spacing-md)', paddingRight: '4px' }}>
-          {categories[catTab].map(cat => (
-            <div key={cat} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-element)', padding: '12px 16px', borderRadius: 'var(--radius-sm)' }}>
-              <span style={{ fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '60%' }}>{cat}</span>
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <button onClick={() => openEditModal(cat)} style={{ color: 'var(--accent-secondary)' }}>
-                  <Edit2 size={18} />
-                </button>
-                <button onClick={() => handleDeleteCategory(cat)} style={{ color: 'var(--danger)' }}>
-                  <Trash2 size={18} />
-                </button>
+        {!activeCategoryView ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <button 
+              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', background: 'var(--bg-element)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', color: 'white' }}
+              onClick={() => { setActiveCategoryView('expense'); setCatTab('expense'); }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ padding: '8px', background: 'rgba(239, 68, 68, 0.15)', borderRadius: '50%', display: 'flex' }}>
+                  <TrendingDown color="var(--danger)" size={20} />
+                </div>
+                <div style={{ textAlign: 'left' }}>
+                  <div style={{ fontSize: '1.05rem', fontWeight: 600 }}>{isZHTW ? '支出類別' : 'Expense Categories'}</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '2px' }}>{categories.expense.length} {isZHTW ? '個類別' : 'items'}</div>
+                </div>
               </div>
+              <ChevronRight color="var(--text-secondary)" />
+            </button>
+            <button 
+              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', background: 'var(--bg-element)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', color: 'white' }}
+              onClick={() => { setActiveCategoryView('income'); setCatTab('income'); }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ padding: '8px', background: 'rgba(16, 185, 129, 0.15)', borderRadius: '50%', display: 'flex' }}>
+                  <TrendingUp color="var(--success)" size={20} />
+                </div>
+                <div style={{ textAlign: 'left' }}>
+                  <div style={{ fontSize: '1.05rem', fontWeight: 600 }}>{isZHTW ? '收入類別' : 'Income Categories'}</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '2px' }}>{categories.income.length} {isZHTW ? '個類別' : 'items'}</div>
+                </div>
+              </div>
+              <ChevronRight color="var(--text-secondary)" />
+            </button>
+          </div>
+        ) : (
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--spacing-md)' }}>
+              <button 
+                onClick={() => setActiveCategoryView(null)} 
+                style={{ color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.9rem', fontWeight: 600 }}
+              >
+                <ChevronLeft size={18} /> {isZHTW ? '返回' : 'Back'}
+              </button>
+              <span style={{ fontWeight: 600, color: activeCategoryView === 'expense' ? 'var(--danger)' : 'var(--success)' }}>
+                {activeCategoryView === 'expense' ? (isZHTW ? '支出' : 'Expense') : (isZHTW ? '收入' : 'Income')}
+              </span>
             </div>
-          ))}
-        </div>
 
-        <button onClick={openAddModal} className="btn-secondary" style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
-          <PlusCircle size={18} />
-          {isZHTW ? '新增類別' : 'Add Category'}
-        </button>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', maxHeight: '40vh', overflowY: 'auto', marginBottom: 'var(--spacing-md)', paddingRight: '4px' }}>
+              {categories[catTab].map(cat => (
+                <div key={cat} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-element)', padding: '10px', borderRadius: 'var(--radius-sm)' }}>
+                  <span style={{ fontWeight: 500, fontSize: '0.9rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>{cat}</span>
+                  <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+                    <button onClick={() => openEditModal(cat)} style={{ color: 'var(--accent-secondary)', padding: '2px' }}>
+                      <Edit2 size={16} />
+                    </button>
+                    <button onClick={() => handleDeleteCategory(cat)} style={{ color: 'var(--danger)', padding: '2px' }}>
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <button onClick={openAddModal} className="btn-secondary" style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
+              <PlusCircle size={18} />
+              {isZHTW ? '新增類別' : 'Add Category'}
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="card">
@@ -193,24 +219,6 @@ export default function Settings() {
         )}
       </div>
 
-      <div className="card" style={{ border: '1px solid var(--danger)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)', marginBottom: 'var(--spacing-sm)' }}>
-          <AlertTriangle color="var(--danger)" />
-          <h3 style={{ color: 'var(--danger)', margin: 0 }}>{isZHTW ? '危險區域' : 'Danger Zone'}</h3>
-        </div>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: 'var(--spacing-md)' }}>
-          {isZHTW 
-            ? '清空所有資料將會刪除您紀錄的所有收支明細與設定，一旦執行無法復原。' 
-            : 'Clearing data will wipe all transaction records and settings permanently.'}
-        </p>
-        <button 
-          className="btn-primary" 
-          style={{ background: 'var(--danger)' }}
-          onClick={handleReset}
-        >
-          {isZHTW ? '清除所有資料' : 'Clear All Data'}
-        </button>
-      </div>
 
       {/* Category Edit/Add Modal */}
       {modal.isOpen && (
