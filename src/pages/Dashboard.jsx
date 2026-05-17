@@ -5,7 +5,7 @@ import CategoryPicker from '../components/CategoryPicker';
 import TransactionIcon from '../components/TransactionIcon';
 
 export default function Dashboard() {
-  const { language, assets, setAssets, transactions, setTransactions, categories } = useAppContext();
+  const { language, assets, setAssets, transactions, setTransactions, categories, allocationTargets } = useAppContext();
   const isZHTW = language === 'zh-TW';
 
   const [type, setType] = useState('expense');
@@ -20,6 +20,54 @@ export default function Dashboard() {
   };
   const [datetime, setDatetime] = useState(getLocalDatetime());
 
+  const monthlyIncome = useMemo(() => {
+    const now = new Date();
+    const currentMonthIncome = transactions
+      .filter(tx => {
+        const d = new Date(tx.date);
+        return tx.type === 'income' && d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+      })
+      .reduce((a, b) => a + b.amount, 0);
+      
+    if (currentMonthIncome > 0) return currentMonthIncome;
+    
+    const lastIncomeTx = transactions.find(tx => tx.type === 'income');
+    if (!lastIncomeTx) return 30000; 
+
+    const lastIncomeDate = new Date(lastIncomeTx.date);
+    const lastMonthIncome = transactions
+      .filter(tx => {
+        const d = new Date(tx.date);
+        return tx.type === 'income' && d.getFullYear() === lastIncomeDate.getFullYear() && d.getMonth() === lastIncomeDate.getMonth();
+      })
+      .reduce((a, b) => a + b.amount, 0);
+
+    return lastMonthIncome > 0 ? lastMonthIncome : 30000;
+  }, [transactions]);
+
+  const getAmount = (targetObj, base) => {
+    if (!targetObj) return 0;
+    if (targetObj.type === 'fixed') return targetObj.value;
+    return base * (targetObj.value / 100);
+  };
+
+  const entertainmentTarget = getAmount(allocationTargets?.entertainment || { type: 'percent', value: 10 }, monthlyIncome);
+
+  const currentMonthEntertainmentExpense = useMemo(() => {
+    const now = new Date();
+    return transactions
+      .filter(tx => {
+        const d = new Date(tx.date);
+        return tx.type === 'expense' && 
+               (tx.category === '娛樂' || tx.category === 'Entertainment') &&
+               d.getFullYear() === now.getFullYear() && 
+               d.getMonth() === now.getMonth();
+      })
+      .reduce((a, b) => a + b.amount, 0);
+  }, [transactions]);
+
+  const remainingEntertainment = entertainmentTarget - currentMonthEntertainmentExpense;
+
   const todayExpense = useMemo(() => {
     const now = new Date();
     return transactions
@@ -29,7 +77,6 @@ export default function Dashboard() {
       })
       .reduce((a, b) => a + b.amount, 0);
   }, [transactions]);
-
   useEffect(() => {
     const targetCats = type === 'expense' ? categories.expense : categories.income;
     if (!category || !targetCats.includes(category)) {
@@ -42,6 +89,16 @@ export default function Dashboard() {
     if (!amount || Number(amount) <= 0) return;
 
     const numAmount = Number(amount);
+
+    if (type === 'expense' && (category === '娛樂' || category === 'Entertainment')) {
+      if (remainingEntertainment - numAmount < 0) {
+        const over = numAmount - remainingEntertainment;
+        const msg = isZHTW 
+          ? `提醒：加上這筆消費後，本月「娛樂金」已超支 $${Math.floor(over).toLocaleString()}！` 
+          : `Reminder: Your entertainment fund is now overdrawn by $${Math.floor(over).toLocaleString()}!`;
+        window.alert(msg);
+      }
+    }
     
     const newTx = {
       id: Date.now().toString(),
@@ -79,6 +136,9 @@ export default function Dashboard() {
           <span className="input-label" style={{ marginBottom: 0 }}>{isZHTW ? '目前現金餘額' : 'Cash Balance'}</span>
           <strong style={{ fontSize: '1.2rem', color: 'var(--accent-secondary)' }}>${assets.cash.toLocaleString()}</strong>
           <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+            {isZHTW ? '本月娛樂金剩餘' : 'Ent. Fund'}: <span style={{ color: remainingEntertainment < 0 ? 'var(--danger)' : 'var(--success)' }}>${Math.floor(remainingEntertainment).toLocaleString()}</span>
+          </div>
+          <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
             {isZHTW ? '今日消費' : 'Today\'s Exp'}: <span style={{ color: 'var(--danger)' }}>${todayExpense.toLocaleString()}</span>
           </div>
         </div>
